@@ -12,6 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. リポジトリのコードをチェックアウト
+      #    ※ gitlab-contributions がGitリポジトリに書き込むために必要です
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -21,15 +22,23 @@ jobs:
         with:
           node-version: '18'
 
-      # 3. 同期ツールをインストール
-      - name: Install gitlab-contribution-graph-sync
-        run: npm install -g gitlab-contribution-graph-sync
+      # 3. 同期ツールをインストール (★ここを修正)
+      - name: Install gitlab-contributions
+        run: npm install -g gitlab-contributions
 
-      # 4. 同期を実行
+      # 4. 同期を実行 (★ここを修正)
       - name: Run sync
-        run: gitlab-contribution-graph-sync
+        # Secretsから情報を取得し、ツールの引数として渡します
+        run: >
+          gitlab-contributions
+          --gitlab-url=${{ secrets.GITLAB_URL }}
+          --gitlab-username=${{ secrets.GITLAB_USERNAME }}
+          --gitlab-token=${{ secrets.GITLAB_TOKEN }}
+          --github-repo=${{ github.repository }}
+          --github-token=${{ secrets.GH_PAT }}
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-          GITLAB_URL: ${{ secrets.GITLAB_URL }}
-          GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
-          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          # コミットを行うボットのユーザー情報を設定
+          GIT_AUTHOR_NAME: 'GitLab Sync Bot'
+          GIT_AUTHOR_EMAIL: 'bot@users.noreply.github.com'
+          GIT_COMMITTER_NAME: 'GitLab Sync Bot'
+          GIT_COMMITTER_EMAIL: 'bot@users.noreply.github.com'
