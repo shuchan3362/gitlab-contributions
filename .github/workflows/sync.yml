@@ -12,7 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. リポジトリのコードをチェックアウト
-      #    ※ ツールがGitリポジトリに書き込むために必要です
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -23,18 +22,19 @@ jobs:
           node-version: '18'
 
       # 3. 同期ツールをインストール (★ここを修正)
-      - name: Install gitlab2github
-        run: npm install -g gitlab2github
+      - name: Install sync-gitlab-contributions
+        run: npm install -g sync-gitlab-contributions
 
       # 4. 同期を実行 (★ここを修正)
       - name: Run sync
-        # Secretsから情報を取得し、ツールの引数として渡します
+        # このツールに必要なオプションを指定します
         run: >
-          gitlab2github
+          sync-gitlab-contributions
           --gitlab-url=${{ secrets.GITLAB_URL }}
           --gitlab-token=${{ secrets.GITLAB_TOKEN }}
           --gitlab-username=${{ secrets.GITLAB_USERNAME }}
           --github-token=${{ secrets.GH_PAT }}
+          --github-username=${{ github.actor }} 
           --github-repository=${{ github.repository }}
         env:
           # コミットを行うボットのユーザー情報を設定
