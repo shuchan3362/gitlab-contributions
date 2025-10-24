@@ -11,18 +11,23 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      # 1. アクションがこのリポジトリにコミットするために、まずチェックアウトします
+      # 1. リポジトリのコードをチェックアウト
+      #    ※ このアクションがコミット履歴を読み書きするために必要です
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          # 履歴全体をフェッチします（同期に必要）
+          fetch-depth: 0
 
       # 2. GitLab 同期アクションを実行 (★ここを全面的に修正)
       - name: Sync GitLab Contributions
-        uses: k-p-d/sync-gitlab-contributions@v1 # <- これが正しいアクションです
+        uses: gowee/sync-contrib-calendar-action@v1 # <- これが現在動作するアクションです
         with:
           # "Secrets"に登録した情報を渡します
-          gitlab-url: ${{ secrets.GITLAB_URL }}
-          gitlab-username: ${{ secrets.GITLAB_USERNAME }}
-          gitlab-token: ${{ secrets.GITLAB_TOKEN }}
+          github_token: ${{ secrets.GH_PAT }}
+          gitlab_token: ${{ secrets.GITLAB_TOKEN }}
+          gitlab_url: ${{ secrets.GITLAB_URL }}
+          gitlab_username: ${{ secrets.GITLAB_USERNAME }}
           
-          github-token: ${{ secrets.GH_PAT }}
-          github-repository: ${{ github.repository }} # このリポジトリを指定
+          # どのサービスから同期するかを指定します
+          source: 'gitlab'
