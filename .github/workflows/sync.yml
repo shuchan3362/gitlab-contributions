@@ -1,0 +1,35 @@
+name: Sync GitLab Contributions
+
+on:
+  # 毎日日本時間の午前9時に自動実行 (UTCの0時)
+  schedule:
+    - cron: '0 0 * * *'
+  # 手動でも実行できるようにする
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. リポジトリのコードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Node.js環境をセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # 3. 同期ツールをインストール
+      - name: Install gitlab-contribution-graph-sync
+        run: npm install -g gitlab-contribution-graph-sync
+
+      # 4. 同期を実行
+      - name: Run sync
+        run: gitlab-contribution-graph-sync
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITLAB_URL: ${{ secrets.GITLAB_URL }}
+          GITLAB_USERNAME: ${{ secrets.GITLAB_USERNAME }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
