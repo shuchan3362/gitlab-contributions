@@ -12,33 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       # 1. リポジトリのコードをチェックアウト
+      #    ※ このアクションがコミットをプッシュするために必要です
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # 2. Node.js環境をセットアップ
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      # 2. GitLab 同期アクションを実行 (★ここを全面的に変更)
+      - name: Sync GitLab Contributions
+        uses: comPoota/gitlab-contribution-sync@v1
         with:
-          node-version: '18'
-
-      # 3. 同期ツールをインストール (★ここを修正)
-      - name: Install sync-gitlab-contributions
-        run: npm install -g sync-gitlab-contributions
-
-      # 4. 同期を実行 (★ここを修正)
-      - name: Run sync
-        # このツールに必要なオプションを指定します
-        run: >
-          sync-gitlab-contributions
-          --gitlab-url=${{ secrets.GITLAB_URL }}
-          --gitlab-token=${{ secrets.GITLAB_TOKEN }}
-          --gitlab-username=${{ secrets.GITLAB_USERNAME }}
-          --github-token=${{ secrets.GH_PAT }}
-          --github-username=${{ github.actor }} 
-          --github-repository=${{ github.repository }}
-        env:
-          # コミットを行うボットのユーザー情報を設定
-          GIT_AUTHOR_NAME: 'GitLab Sync Bot'
-          GIT_AUTHOR_EMAIL: 'bot@users.noreply.github.com'
-          GIT_COMMITTER_NAME: 'GitLab Sync Bot'
-          GIT_COMMITTER_EMAIL: 'bot@users.noreply.github.com'
+          github_token: ${{ secrets.GH_PAT }}
+          gitlab_token: ${{ secrets.GITLAB_TOKEN }}
+          gitlab_url: ${{ secrets.GITLAB_URL }}
+          gitlab_username: ${{ secrets.GITLAB_USERNAME }}
